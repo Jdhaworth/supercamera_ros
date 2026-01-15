@@ -14,6 +14,7 @@
 
 #include <linux/module.h>
 #include <linux/kernel.h>
+#include <linux/version.h>
 #include <linux/usb.h>
 #include <linux/slab.h>
 #include <linux/fs.h>
@@ -429,7 +430,11 @@ static int supercamera_probe(struct usb_interface *interface,
         goto error_cdev;
     }
     
+#if LINUX_VERSION_CODE >= KERNEL_VERSION(6, 4, 0)
     dev->class = class_create(DRIVER_NAME);
+#else
+    dev->class = class_create(THIS_MODULE, DRIVER_NAME);
+#endif
     if (IS_ERR(dev->class)) {
         result = PTR_ERR(dev->class);
         goto error_class;
