@@ -12,7 +12,7 @@ ROS2 driver for UseePlus/SuperCamera USB borescope/endoscope cameras.
 
 ```bash
 cd ~/ros2_ws/src
-git clone https://github.com/YOUR_USERNAME/supercamera_ros.git
+git clone https://github.com/Jdhaworth/supercamera_ros.git
 cd ~/ros2_ws
 colcon build --packages-select supercamera_ros
 source install/setup.bash
