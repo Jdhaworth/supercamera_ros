@@ -44,12 +44,15 @@ timeout 180 docker run --rm \
     echo 'Generated files:'
     ls -lh devel/lib/supercamera_ros/ 2>/dev/null || echo 'No executables (Python only - OK)'
     ls -lh install/lib/supercamera_ros/ 2>/dev/null || echo 'No install files (not installed)'
-  " || {
-    echo ""
-    echo "✗ Build failed or timed out after 3 minutes"
-    exit 1
-  }
+  "
 
+EXIT_CODE=$?
 echo ""
-echo "✓ ROS1 branch tests passed!"
+if [ $EXIT_CODE -eq 0 ]; then
+    echo "✓ ROS1 branch tests passed!"
+    echo "The package builds successfully on Ubuntu 20.04 / ROS Noetic"
+else
+    echo "✗ Build failed (exit code: $EXIT_CODE)"
+    exit 1
+fi
 echo ""
