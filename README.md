@@ -15,7 +15,7 @@ ROS driver for UseePlus/SuperCamera USB borescope/endoscope cameras.
 cd ~/catkin_ws/src
 git clone -b ros1 https://github.com/Jdhaworth/supercamera_ros.git
 cd ~/catkin_ws
-catkin_make
+catkin build supercamera_ros
 source devel/setup.bash
 ```
 

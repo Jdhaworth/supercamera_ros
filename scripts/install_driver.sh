@@ -27,7 +27,7 @@ if [ ! -f "$DRIVER_DIR/supercamera.c" ]; then
     DRIVER_DIR="$(rospack find supercamera_ros 2>/dev/null)/driver" || true
     if [ ! -f "$DRIVER_DIR/supercamera.c" ]; then
         echo "ERROR: Cannot find driver source files"
-        echo "Make sure supercamera_ros package is built: catkin_make"
+        echo "Make sure supercamera_ros package is built: catkin build supercamera_ros"
         exit 1
     fi
 fi
