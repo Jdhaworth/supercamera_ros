@@ -24,10 +24,10 @@ DRIVER_DIR="$SCRIPT_DIR/../driver"
 # Check if driver source exists
 if [ ! -f "$DRIVER_DIR/supercamera.c" ]; then
     # Try to find it relative to ROS package
-    DRIVER_DIR="$(ros2 pkg prefix supercamera_ros 2>/dev/null)/share/supercamera_ros/driver" || true
+    DRIVER_DIR="$(rospack find supercamera_ros 2>/dev/null)/driver" || true
     if [ ! -f "$DRIVER_DIR/supercamera.c" ]; then
         echo "ERROR: Cannot find driver source files"
-        echo "Make sure supercamera_ros package is built: colcon build"
+        echo "Make sure supercamera_ros package is built: catkin_make"
         exit 1
     fi
 fi
@@ -99,6 +99,6 @@ fi
 
 echo ""
 echo "Usage:"
-echo "  ros2 run supercamera_ros publisher"
-echo "  ros2 run supercamera_ros publisher --ros-args -p topic:=/my/topic"
+echo "  rosrun supercamera_ros publisher_node"
+echo "  rosrun supercamera_ros publisher_node _topic:=/my/topic"
 echo ""
