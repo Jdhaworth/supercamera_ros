@@ -1,8 +1,0 @@
-FROM ros:noetic-ros-base
-
-# Install dependencies once (cached layer)
-RUN apt-get update && \
-    apt-get install -y python-is-python3 python3-opencv python3-numpy && \
-    rm -rf /var/lib/apt/lists/*
-
-WORKDIR /ws/src
