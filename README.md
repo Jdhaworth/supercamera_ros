@@ -1,27 +1,28 @@
 # SuperCamera ROS
 
-ROS2 driver for UseePlus/SuperCamera USB borescope/endoscope cameras.
+ROS driver for UseePlus/SuperCamera USB borescope/endoscope cameras.
 
 **Supported cameras:** USB devices with VID:2ce3 PID:3828 (commonly sold as "UseePlus", "Geek Szitman", or generic USB borescope cameras)
 
-**Tested on:** Ubuntu 18.04, 20.04, 22.04 with ROS2 Humble/Iron
+**This branch:** ROS1 Noetic (Ubuntu 20.04)  
+**Other branches:** `main` - ROS2 Humble/Iron (Ubuntu 22.04)
 
 ## Quick Start
 
 ### 1. Clone and Build
 
 ```bash
-cd ~/ros2_ws/src
-git clone https://github.com/YOUR_USERNAME/supercamera_ros.git
-cd ~/ros2_ws
-colcon build --packages-select supercamera_ros
-source install/setup.bash
+cd ~/catkin_ws/src
+git clone -b ros1 https://github.com/Jdhaworth/supercamera_ros.git
+cd ~/catkin_ws
+catkin_make
+source devel/setup.bash
 ```
 
 ### 2. Install the Kernel Driver
 
 ```bash
-cd ~/ros2_ws/src/supercamera_ros/scripts
+roscd supercamera_ros/scripts
 sudo ./install_driver.sh
 ```
 
@@ -31,12 +32,12 @@ This installs a kernel module that creates `/dev/supercamera` when the camera is
 
 ```bash
 # Make sure camera is plugged in
-ros2 run supercamera_ros publisher
+rosrun supercamera_ros publisher_node
 ```
 
 View the images:
 ```bash
-ros2 run rqt_image_view rqt_image_view /supercamera/image_raw
+rosrun rqt_image_view rqt_image_view /supercamera/image_raw
 ```
 
 ## Usage
@@ -44,30 +45,30 @@ ros2 run rqt_image_view rqt_image_view /supercamera/image_raw
 ### Basic Usage
 
 ```bash
-ros2 run supercamera_ros publisher
+rosrun supercamera_ros publisher_node
 ```
 
 ### With Custom Topic
 
 ```bash
-ros2 run supercamera_ros publisher --ros-args -p topic:=/my/camera/image
+rosrun supercamera_ros publisher_node _topic:=/my/camera/image
 ```
 
 ### Launch File
 
 ```bash
-ros2 launch supercamera_ros supercamera.launch.py
-ros2 launch supercamera_ros supercamera.launch.py topic:=/endoscope/image_raw
+roslaunch supercamera_ros supercamera.launch
+roslaunch supercamera_ros supercamera.launch topic:=/endoscope/image_raw
 ```
 
 ## Parameters
 
 | Parameter | Default | Description |
 |-----------|---------|-------------|
-| `device` | `/dev/supercamera` | Path to camera device |
-| `topic` | `/supercamera/image_raw` | Topic to publish images |
-| `frame_id` | `supercamera_link` | TF frame ID |
-| `queue_size` | `10` | Publisher queue size |
+| `~device` | `/dev/supercamera` | Path to camera device |
+| `~topic` | `/supercamera/image_raw` | Topic to publish images |
+| `~frame_id` | `supercamera_link` | TF frame ID |
+| `~queue_size` | `10` | Publisher queue size |
 
 ## Troubleshooting
 
@@ -109,4 +110,4 @@ MIT License
 
 ## Contributing
 
-Pull requests welcome! Please test on Ubuntu 18.04/20.04/22.04 before submitting.
+Pull requests welcome! Please test on Ubuntu 20.04 with ROS Noetic before submitting.

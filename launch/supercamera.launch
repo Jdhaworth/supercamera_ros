@@ -1,0 +1,24 @@
+<!--
+SuperCamera ROS Launch File
+
+Usage:
+    roslaunch supercamera_ros supercamera.launch
+    roslaunch supercamera_ros supercamera.launch topic:=/my/camera/image
+-->
+
+<launch>
+  <!-- Launch arguments -->
+  <arg name="device" default="/dev/supercamera" 
+       doc="Path to the camera device" />
+  <arg name="topic" default="/supercamera/image_raw" 
+       doc="Topic to publish images to" />
+  <arg name="frame_id" default="supercamera_link" 
+       doc="TF frame ID for the camera" />
+  
+  <!-- SuperCamera publisher node -->
+  <node pkg="supercamera_ros" type="publisher_node" name="supercamera_publisher" output="screen">
+    <param name="device" value="$(arg device)" />
+    <param name="topic" value="$(arg topic)" />
+    <param name="frame_id" value="$(arg frame_id)" />
+  </node>
+</launch>
