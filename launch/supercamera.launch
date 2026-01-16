@@ -14,11 +14,17 @@ Usage:
        doc="Topic to publish images to" />
   <arg name="frame_id" default="supercamera_link" 
        doc="TF frame ID for the camera" />
+  <arg name="publish_raw" default="true"
+       doc="Publish raw images (high bandwidth)" />
+  <arg name="publish_compressed" default="true"
+       doc="Publish compressed JPEG images (low bandwidth)" />
   
   <!-- SuperCamera publisher node -->
   <node pkg="supercamera_ros" type="publisher_node" name="supercamera_publisher" output="screen">
     <param name="device" value="$(arg device)" />
     <param name="topic" value="$(arg topic)" />
     <param name="frame_id" value="$(arg frame_id)" />
+    <param name="publish_raw" value="$(arg publish_raw)" />
+    <param name="publish_compressed" value="$(arg publish_compressed)" />
   </node>
 </launch>

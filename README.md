@@ -69,6 +69,26 @@ roslaunch supercamera_ros supercamera.launch topic:=/endoscope/image_raw
 | `~topic` | `/supercamera/image_raw` | Topic to publish images |
 | `~frame_id` | `supercamera_link` | TF frame ID |
 | `~queue_size` | `10` | Publisher queue size |
+| `~publish_raw` | `true` | Publish raw images (~3MB/s) |
+| `~publish_compressed` | `true` | Publish JPEG compressed (~100KB/s) |
+
+## Bandwidth Optimization
+
+For streaming over WiFi, use compressed images only:
+
+```bash
+# Publish compressed only (much lower bandwidth)
+rosrun supercamera_ros publisher_node _publish_raw:=false
+
+# Or via launch file
+roslaunch supercamera_ros supercamera.launch publish_raw:=false
+```
+
+Subscribe to compressed topic on remote machine:
+```bash
+# View compressed images
+rosrun image_view image_view image:=/supercamera/image_raw compressed
+```
 
 ## Troubleshooting
 

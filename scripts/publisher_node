@@ -11,7 +11,7 @@ Usage:
 """
 
 import rospy
-from sensor_msgs.msg import Image
+from sensor_msgs.msg import Image, CompressedImage
 from cv_bridge import CvBridge
 import cv2 as cv
 import numpy as np
@@ -30,9 +30,21 @@ class SuperCameraPublisher:
         topic = rospy.get_param('~topic', '/supercamera/image_raw')
         self.frame_id = rospy.get_param('~frame_id', 'supercamera_link')
         queue_size = rospy.get_param('~queue_size', 10)
+        self.publish_raw = rospy.get_param('~publish_raw', True)
+        self.publish_compressed = rospy.get_param('~publish_compressed', True)
         
-        # Publisher
-        self.pub = rospy.Publisher(topic, Image, queue_size=queue_size)
+        # Publishers
+        if self.publish_raw:
+            self.pub = rospy.Publisher(topic, Image, queue_size=queue_size)
+        else:
+            self.pub = None
+        
+        if self.publish_compressed:
+            self.pub_compressed = rospy.Publisher(
+                topic + '/compressed', CompressedImage, queue_size=queue_size)
+        else:
+            self.pub_compressed = None
+        
         self.bridge = CvBridge()
         
         # State
@@ -83,6 +95,7 @@ class SuperCameraPublisher:
         frames_published = 0
         frames_dropped = 0
         last_good_frame = None
+        last_good_jpeg = None
         start_time = time.time()
         
         while self.running and not rospy.is_shutdown():
@@ -96,26 +109,30 @@ class SuperCameraPublisher:
             # Handle dropped frames by repeating last good frame
             if jpeg_data is None:
                 frames_dropped += 1
-                if last_good_frame is not None:
-                    self._publish_frame(last_good_frame)
+                if last_good_frame is not None and last_good_jpeg is not None:
+                    self._publish_frame(last_good_frame, last_good_jpeg)
                     frames_published += 1
                 continue
             
-            # Decode JPEG
-            frame = cv.imdecode(
-                np.frombuffer(jpeg_data, dtype=np.uint8),
-                cv.IMREAD_COLOR
-            )
+            # Decode JPEG (only if publishing raw)
+            if self.publish_raw:
+                frame = cv.imdecode(
+                    np.frombuffer(jpeg_data, dtype=np.uint8),
+                    cv.IMREAD_COLOR
+                )
+            else:
+                frame = True  # Placeholder - we have valid data
             
             if frame is not None:
-                last_good_frame = frame
-                self._publish_frame(frame)
+                last_good_frame = frame if self.publish_raw else None
+                last_good_jpeg = jpeg_data
+                self._publish_frame(frame if self.publish_raw else None, jpeg_data)
                 frames_published += 1
             else:
                 # Decode failed - repeat last good frame
                 frames_dropped += 1
-                if last_good_frame is not None:
-                    self._publish_frame(last_good_frame)
+                if last_good_frame is not None or last_good_jpeg is not None:
+                    self._publish_frame(last_good_frame, last_good_jpeg)
                     frames_published += 1
             
             # Log every 100 frames
@@ -215,13 +232,27 @@ class SuperCameraPublisher:
                 if self.running:
                     rospy.logwarn('Reader error: %s' % str(e))
     
-    def _publish_frame(self, frame):
+    def _publish_frame(self, frame, jpeg_data):
         """Publish a frame to ROS."""
         try:
-            msg = self.bridge.cv2_to_imgmsg(frame, encoding='bgr8')
-            msg.header.stamp = rospy.Time.now()
-            msg.header.frame_id = self.frame_id
-            self.pub.publish(msg)
+            stamp = rospy.Time.now()
+            
+            # Publish raw image
+            if self.pub is not None and frame is not None:
+                msg = self.bridge.cv2_to_imgmsg(frame, encoding='bgr8')
+                msg.header.stamp = stamp
+                msg.header.frame_id = self.frame_id
+                self.pub.publish(msg)
+            
+            # Publish compressed image (direct JPEG - very efficient!)
+            if self.pub_compressed is not None and jpeg_data is not None:
+                cmsg = CompressedImage()
+                cmsg.header.stamp = stamp
+                cmsg.header.frame_id = self.frame_id
+                cmsg.format = 'jpeg'
+                cmsg.data = jpeg_data
+                self.pub_compressed.publish(cmsg)
+            
             self.frame_count += 1
         except Exception as e:
             rospy.logwarn('Publish error: %s' % str(e))
